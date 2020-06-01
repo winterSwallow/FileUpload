@@ -1,9 +1,8 @@
 package com.file.upload.controller;
 
-import org.springframework.boot.system.ApplicationHome;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.ResourceUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -16,9 +15,16 @@ import java.util.UUID;
 @Controller
 public class UploadFileController {
 
+    @Value("${diskName}")
+    private String diskName;
+
+    @Value("${fileDirectory}")
+    private String fileDirectory;
+
+
     @GetMapping("/uploadFile")
-    public String uploadOneFile(@RequestParam("filePath") String filePath,Model model) {
-        model.addAttribute("filePath",filePath);
+    public String uploadOneFile(@RequestParam("filePath") String filePath, Model model) {
+        model.addAttribute("filePath", filePath);
         return "uploadFile";
     }
 
@@ -31,23 +37,19 @@ public class UploadFileController {
             return modelAndView;
         }
         try {
-//            ApplicationHome applicationHome = new ApplicationHome(getClass());
-//            File jarFile = applicationHome.getSource();
-//            String filePath = jarFile.getParentFile().toString() + "\\static\\upload\\";
-            String filePath = "D:\\upload\\";
-            System.out.println("filePath =============" + filePath);
+            System.out.println("filePath =============" + diskName + fileDirectory);
             String fileName = file.getOriginalFilename();
             if (fileName != null) {
                 String suffixName = fileName.substring(fileName.lastIndexOf("."));
                 fileName = UUID.randomUUID() + suffixName;
             }
-            File newFile = new File(filePath + fileName);
+            File newFile = new File(diskName + fileDirectory + fileName);
             if (!newFile.getParentFile().exists()) {
                 newFile.getParentFile().mkdirs();
             }
             file.transferTo(newFile);
             System.out.println("上传成功");
-            modelAndView.addObject("filePath","../static/upload/" + fileName);
+            modelAndView.addObject("filePath", fileDirectory + fileName);
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("上传失败");
